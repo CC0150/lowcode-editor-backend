@@ -11,9 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 挂载业务路由
-app.use("/api", aiRoutes);           // 将匹配 /api/generate-form, /api/patch-form 等
-app.use("/api/forms", formRoutes);   // 将匹配 /api/forms 及其子路由
+const router = express.Router();
+router.use("/forms", formRoutes); // 处理 /api/forms
+router.use("/", aiRoutes);        // 处理 /api/generate-form 等
+
+app.use("/api", router); // 统一入口
 
 const PORT = process.env.PORT || 3001;
 
