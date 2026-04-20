@@ -4,10 +4,6 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
-    "paths": {
-      "@prisma/client": ["../node_modules/@prisma/client"],
-      ".prisma/client": ["../node_modules/.prisma/client"]
-    },
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
