@@ -6,6 +6,11 @@ import {
     buildModifyComponentPrompt,
     buildRegexPrompt
 } from "../constants/prompts.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const AI_MODEL = process.env.AI_MODEL || "deepseek-v4-flash";
 
 // 1. 全新生成表单 (SSE 流式)
 export const generateForm = async (req: Request, res: Response) => {
@@ -19,7 +24,7 @@ export const generateForm = async (req: Request, res: Response) => {
 
     try {
         const stream = await openai.chat.completions.create({
-            model: "deepseek-chat",
+            model: AI_MODEL,
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 { role: "user", content: prompt },
@@ -55,7 +60,7 @@ export const patchForm = async (req: Request, res: Response) => {
 
     try {
         const stream = await openai.chat.completions.create({
-            model: "deepseek-chat",
+            model: AI_MODEL,
             messages: [
                 { role: "user", content: buildPatchPrompt(currentComponents, prompt) },
             ],
@@ -84,7 +89,7 @@ export const modifyComponent = async (req: Request, res: Response) => {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "deepseek-chat",
+            model: AI_MODEL,
             messages: [
                 { role: "user", content: buildModifyComponentPrompt(component, prompt) },
             ],
@@ -107,7 +112,7 @@ export const generateRegex = async (req: Request, res: Response) => {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "deepseek-chat",
+            model: AI_MODEL,
             messages: [
                 { role: "user", content: buildRegexPrompt(prompt) },
             ],
