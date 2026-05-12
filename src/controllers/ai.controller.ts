@@ -33,13 +33,22 @@ export const generateForm = async (req: Request, res: Response) => {
             temperature: 0.1,
         });
 
+        let aborted = false;
+        req.on("close", () => {
+            aborted = true;
+            stream.controller.abort();
+        });
+
         for await (const chunk of stream) {
+            if (aborted) break;
             const content = chunk.choices[0]?.delta?.content || "";
             if (content) {
                 res.write(`data: ${JSON.stringify({ content })}\n\n`);
             }
         }
-        res.write("data: [DONE]\n\n");
+        if (!aborted) {
+            res.write("data: [DONE]\n\n");
+        }
         res.end();
     } catch (error) {
         console.error("OpenAI API Error:", error);
@@ -68,13 +77,22 @@ export const patchForm = async (req: Request, res: Response) => {
             temperature: 0.1,
         });
 
+        let aborted = false;
+        req.on("close", () => {
+            aborted = true;
+            stream.controller.abort();
+        });
+
         for await (const chunk of stream) {
+            if (aborted) break;
             const content = chunk.choices[0]?.delta?.content || "";
             if (content) {
                 res.write(`data: ${JSON.stringify({ content })}\n\n`);
             }
         }
-        res.write("data: [DONE]\n\n");
+        if (!aborted) {
+            res.write("data: [DONE]\n\n");
+        }
         res.end();
     } catch (error) {
         res.write(`data: ${JSON.stringify({ error: "大模型增量修改失败" })}\n\n`);
