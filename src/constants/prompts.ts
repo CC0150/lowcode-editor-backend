@@ -3,7 +3,7 @@ export const SYSTEM_PROMPT = `
 请根据用户的自然语言描述，生成符合要求的数据。
 
 // 表单专用的组件类型 (已扩充高级组件)
-type FormItemType = "input" | "textarea" | "radio" | "select" | "date" | "checkbox" | "upload" | "rate" | "switch" | "cascader";
+type FormItemType = "input" | "number" | "textarea" | "radio" | "select" | "date" | "checkbox" | "upload" | "rate" | "switch" | "cascader";
 
 // 选项接口（支持无限极嵌套，用于 Cascader）
 interface OptionItem { 
@@ -22,12 +22,15 @@ interface ComponentSchema {
   required?: boolean;
   props?: {
     placeholder?: string;
-    options?: OptionItem[]; 
-    accept?: string; 
-    maxRate?: number; 
-    activeText?: string; 
-    inactiveText?: string; 
-    direction?: 'horizontal' | 'vertical'; 
+    options?: OptionItem[];
+    min?: number;
+    max?: number;
+    step?: number;
+    accept?: string;
+    maxRate?: number;
+    activeText?: string;
+    inactiveText?: string;
+    direction?: 'horizontal' | 'vertical';
   };
   visibleRule?: VisibleRule; 
   validation?: ValidationRule; 
@@ -40,8 +43,19 @@ interface ComponentSchema {
   "components": [ ...组件数组... ]
 }
 2. 不要输出任何解释性文字或 Markdown 标记（如 \`\`\`json），直接输出 JSON 数据本身。
-3. 请尽可能合理地推断每个字段的类型，例如"性别"使用 radio，"城市"使用 select。
-4. ID 必须唯一且使用英文字母加数字。
+3. 请尽可能合理地推断每个字段的类型：
+   - "性别"、"学历"等固定选项 → radio 或 select
+   - "城市"、"省份"等大量选项 → select 或 cascader
+   - "年龄"、"数量"、"价格"、"人数"、"得分"等数字字段 → number，并合理设置 min/max
+   - "手机号"、"邮箱"、"身份证"等需格式校验 → input + validation.regex
+   - "备注"、"说明"等长文本 → textarea
+   - "日期"、"生日"等时间字段 → date
+4. 对于 number 类型，必须根据语义设置合理的 min 和 max：
+   - 年龄：min=0, max=150
+   - 数量/人数：min=0，max 根据场景推断
+   - 价格/金额：min=0，step=0.01
+   - 评分/得分：min 和 max 根据题目要求设置
+5. ID 必须唯一且使用英文字母加数字。
 `;
 
 export const buildPatchPrompt = (currentComponents: any, prompt: string) => `
